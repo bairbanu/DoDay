@@ -1,21 +1,30 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, FlatList } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Button, FlatList } from 'react-native';
 
 export default class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      tasks: [{task: 'why not'}]
+      tasks: [
+        {
+          id: 0,
+          task: 'why not',
+          priority: undefined,
+          completed: false
+        }
+      ]
     }
 
     this.handlePress = this.handlePress.bind(this);
   }
 
+  renderTask({ item }) {
+    return <Text style={ styles.task } onPress={ this.test }> { item.task } </Text>
+  }
+
   handlePress() {
-    this.setState((prevState) => {
-      return {tasks: [...prevState.tasks, {task: 'cool'}]}
-    })
+    this.setState( prevState => ({ tasks: [...prevState.tasks, {task: 'cool'}] }) );
   }
 
   render() {
@@ -23,9 +32,9 @@ export default class App extends React.Component {
       <View>
         <View>
           <FlatList
-            style={ styles.flatlist }
+            style={ styles.flatList }
             data={ this.state.tasks }
-            renderItem={({ item }) => <Text> { item.task } </Text>}
+            renderItem={ this.renderTask }
           />
         </View>
         <Button title="Add Task" onPress={ this.handlePress } />
@@ -35,7 +44,12 @@ export default class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  flatlist: {
+  flatList: {
     marginTop: 50,
+  },
+  task: {
+    marginTop: 20,
+    marginBottom: 10
   }
+
 });
