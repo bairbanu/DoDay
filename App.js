@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View, ScrollView, Button, FlatList } from 'react-native';
 
+import { TaskList, TaskDetail } from './views/components';
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -9,41 +11,64 @@ export default class App extends React.Component {
       tasks: [
         {
           id: 0,
-          task: 'why not',
+          task: 'Initial task.',
           priority: undefined,
           completed: false
         }
       ],
-      addingTask: false
+      addingTask: false,
+      counterForID: 1
     }
 
-    this.handleAddTaskPress = this.handleAddTaskPress.bind(this);
+    this.toggleAddingTask = this.toggleAddingTask.bind(this);
+    this.addTask = this.addTask.bind(this);
   }
 
-  renderTask({ item }) {
-    return <Text style={ styles.task } onPress={ this.test }> { item.task } </Text>
+  toggleAddingTask() {
+    this.setState(prevState => ({ addingTask: !prevState.addingTask }));
   }
 
-  handleAddTaskPress() {
-    this.setState( prevState => ({ tasks: [...prevState.tasks, {task: 'cool'}] }) );
+  addTask(item) {
+    this.setState(prevState => {
+      const task = {
+        id: prevState.counterForID,
+        task: item.text,
+        priority: item.priority,
+        completed: false
+      };
+
+      const newCounterID = prevState.counterForID + 1;
+
+      return {
+        tasks: [...prevState.tasks, task],
+        addingTask: false,
+        counterForID: newCounterID
+       }
+    })
   }
 
   render() {
-    const taskList =
-    <ScrollView>
-      <View>
-        <FlatList
-          style={ styles.flatList }
-          data={ this.state.tasks }
-          renderItem={ this.renderTask }
-        />
-      </View>
-      <Button title="Add Task" onPress={ this.handleAddTaskPress } />
-    </ScrollView>;
+    setInterval(() => {
+      this.setState({
+        tasks: [
+          {
+            id: 0,
+            task: 'Initial task.',
+            priority: undefined,
+            completed: false
+          }
+        ],
+        addingTask: false,
+        counterForID: 1
+      })
+    }, 30000)
 
-    const taskDetail = <Text style={ styles.task }> Cool sauce </Text>;
-
-    const displayComponent = !this.state.addingTask ? taskList : taskDetail;
+    const displayComponent = !this.state.addingTask
+    ? <TaskList
+        handlePress={ this.toggleAddingTask }
+        tasks={ this.state.tasks } />
+    : <TaskDetail
+        addTask={ this.addTask } />;
 
     return (
       <View>
@@ -61,5 +86,4 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10
   }
-
 });
