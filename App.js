@@ -50,18 +50,11 @@ export default class App extends React.Component {
   render() {
     setInterval(() => {
       this.setState({
-        tasks: [
-          {
-            id: 0,
-            task: 'Initial task.',
-            priority: undefined,
-            completed: false
-          }
-        ],
+        tasks: [],
         addingTask: false,
         counterForID: 1
       })
-    }, 30000)
+    }, 60000)
 
     const displayComponent = !this.state.addingTask
     ? <TaskList
