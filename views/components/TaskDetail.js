@@ -2,23 +2,16 @@ import React, { Component } from 'react';
 import { Text, StyleSheet, TextInput, Button, View } from 'react-native';
 
 export default class TaskDetail extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state ={
-      text: '',
-      priority: undefined
-    }
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+  state = {
+    text: '',
+    priority: undefined
   }
 
-  handleChange(text) {
+  handleChange = (text) => {
     this.setState({ text });
   }
 
-  handleSubmit() {
+  handleSubmit = () => {
     this.props.addTask(this.state);
   }
 

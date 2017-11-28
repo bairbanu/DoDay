@@ -1,34 +1,34 @@
-import React from 'react';
-import { StyleSheet, Text, TextInput, View, ScrollView, Button, FlatList } from 'react-native';
+import React, { Component } from 'react';
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  ScrollView,
+  Button,
+  FlatList } from 'react-native';
 
+import moment from 'moment';
 import { TaskList, TaskDetail } from './views/components';
 
-export default class App extends React.Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      tasks: [
-        {
-          id: 0,
-          task: 'Initial task.',
-          priority: undefined,
-          completed: false
-        }
-      ],
-      addingTask: false,
-      counterForID: 1
-    }
-
-    this.toggleAddingTask = this.toggleAddingTask.bind(this);
-    this.addTask = this.addTask.bind(this);
+export default class App extends Component {
+  state = {
+    tasks: [{
+      id: 0,
+      task: 'Initial test task',
+      priority: undefined,
+      completed: false
+    }],
+    completedTasks: [],
+    addingTask: false,
+    counterForID: 1
   }
 
-  toggleAddingTask() {
+  toggleAddingTask = () => {
     this.setState(prevState => ({ addingTask: !prevState.addingTask }));
   }
 
-  addTask(item) {
+  addTask = (item) => {
     this.setState(prevState => {
       const task = {
         id: prevState.counterForID,
@@ -48,14 +48,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    setInterval(() => {
-      this.setState({
-        tasks: [],
-        addingTask: false,
-        counterForID: 1
-      })
-    }, 60000)
-
     const displayComponent = !this.state.addingTask
     ? <TaskList
         handlePress={ this.toggleAddingTask }
@@ -65,7 +57,10 @@ export default class App extends React.Component {
 
     return (
       <View>
-        { displayComponent }
+        <Text style={ styles.header }> { moment().format('MMMM Do, YYYY')}</Text>
+        <View>
+          { displayComponent }
+        </View>
       </View>
     );
   }
@@ -78,5 +73,10 @@ const styles = StyleSheet.create({
   task: {
     marginTop: 20,
     marginBottom: 10
+  },
+  header: {
+    fontSize: 30,
+    textAlign: 'center',
+    marginTop: 50
   }
 });
