@@ -1,7 +1,7 @@
 import TaskList from './components/TaskList';
-import TaskDetail from './components/TaskDetail';
+import AddOrEditTask from './components/AddOrEditTask';
 
 module.exports = {
   TaskList,
-  TaskDetail
+  AddOrEditTask
 }

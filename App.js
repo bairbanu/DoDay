@@ -2,62 +2,119 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  TextInput,
-  View,
-  ScrollView,
-  Button,
-  FlatList } from 'react-native';
+  View
+} from 'react-native';
 
 import moment from 'moment';
-import { TaskList, TaskDetail } from './views/components';
+import { TaskList, AddOrEditTask } from './views/components';
 
 export default class App extends Component {
   state = {
-    tasks: [{
-      id: 0,
-      task: 'Initial test task',
-      priority: undefined,
-      completed: false
-    }],
-    completedTasks: [],
-    addingTask: false,
-    counterForID: 1
+    tasks: [
+      {
+        id: 0,
+        task: 'Initial test task',
+        priority: undefined,
+        completed: false
+      },
+    ],
+    taskBeingEdited: null,
+    addingOrEditingTask: false,
+    editingTask: false,
+    counterForTaskID: 1
   }
 
   toggleAddingTask = () => {
-    this.setState(prevState => ({ addingTask: !prevState.addingTask }));
+    this.setState(prevState => ({ addingOrEditingTask: !prevState.addingOrEditingTask }));
   }
 
-  addTask = (item) => {
-    this.setState(prevState => {
-      const task = {
-        id: prevState.counterForID,
-        task: item.text,
-        priority: item.priority,
-        completed: false
-      };
+  toggleEditingTask = (task) => {
+    this.setState({
+      taskBeingEdited: task,
+      addingOrEditingTask: true,
+      editingTask: true
+    })
+  }
 
-      const newCounterID = prevState.counterForID + 1;
+  addTask = (task) => {
+    this.setState(prevState => {
+      const newTask = {
+        id: prevState.counterForTaskID,
+        task: task.text,
+        priority: task.priority,
+        completed: false
+      }
+
+      const newCounterID = prevState.counterForTaskID + 1;
 
       return {
-        tasks: [...prevState.tasks, task],
-        addingTask: false,
-        counterForID: newCounterID
+        tasks: [...prevState.tasks, newTask],
+        addingOrEditingTask: false,
+        editingTask: false,
+        counterForTaskID: newCounterID
        }
     })
   }
 
-  render() {
-    const displayComponent = !this.state.addingTask
-    ? <TaskList
-        handlePress={ this.toggleAddingTask }
-        tasks={ this.state.tasks } />
-    : <TaskDetail
-        addTask={ this.addTask } />;
+  editTask = (item) => {
+    const newTasks = this.state.tasks.map(task => {
+      if (task.id === item.id) {
+        return {
+          task: item.task,
+          id: item.id,
+          priority: item.priority,
+          completed: false
+        }
+      }
+      return task;
+    })
+
+    this.setState({
+      tasks: newTasks,
+      taskBeingEdited: null,
+      addingOrEditingTask: false,
+      editingTask: false
+    })
+  }
+
+  pickComponent = () => {
+    const { addingOrEditingTask, editingTask, tasks, taskBeingEdited } = this.state;
+
+    if (!addingOrEditingTask) {
+      return (
+        <TaskList
+          toggleAddingTask={ this.toggleAddingTask }
+          toggleEditingTask={ this.toggleEditingTask }
+          tasks={ tasks } />
+      );
+    }
+
+    else if (editingTask) {
+      return (
+        <AddOrEditTask
+          editTask={ this.editTask }
+          editing={ editingTask }
+          taskBeingEdited={ taskBeingEdited }
+        />
+      );
+    }
+
+    else if (!editingTask) {
+      return (
+        <AddOrEditTask
+          addTask={ this.addTask }
+        />
+      );
+    }
+
+  }
+
+  render = () => {
+    const displayComponent = this.pickComponent()
 
     return (
       <View>
-        <Text style={ styles.header }> { moment().format('MMMM Do, YYYY')}</Text>
+        <Text style={ styles.header }> { moment().format('MMMM Do, YYYY') } </Text>
         <View>
           { displayComponent }
         </View>
