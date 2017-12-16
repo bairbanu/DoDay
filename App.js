@@ -44,7 +44,6 @@ export default class App extends Component {
         priority: task.priority,
         completed: false
       }
-
       const newCounterID = prevState.counterForTaskID + 1;
 
       return {
@@ -68,7 +67,6 @@ export default class App extends Component {
       }
       return task;
     })
-
     this.setState({
       tasks: newTasks,
       taskBeingEdited: null,
@@ -88,7 +86,6 @@ export default class App extends Component {
           tasks={ tasks } />
       );
     }
-
     else if (editingTask) {
       return (
         <AddOrEditTask
@@ -98,7 +95,6 @@ export default class App extends Component {
         />
       );
     }
-
     else if (!editingTask) {
       return (
         <AddOrEditTask
@@ -106,14 +102,14 @@ export default class App extends Component {
         />
       );
     }
-
   }
 
-  render = () => {
+  render() {
     const displayComponent = this.pickComponent()
 
     return (
       <View>
+        {/* Make this a date shower stateless component, and add a thin separator */}
         <Text style={ styles.header }> { moment().format('MMMM Do, YYYY') } </Text>
         <View>
           { displayComponent }

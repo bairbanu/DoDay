@@ -50,7 +50,7 @@ export default class TaskDetail extends Component {
     }
   }
 
-  render = () => {
+  render() {
     // console.log('task being edited:::', this.props.taskBeingEdited);
 
     return (
