@@ -18,8 +18,8 @@ const Row = ({ item, toggleEditingTask }) => {
   );
 };
 
-const SwipeableRow = ({ item, index, toggleEditingTask }) => (
-    <StyledSwipeableRow completedTask={ completedTask } deletedTask={ deletedTask } >
+const SwipeableRow = ({ item, index, toggleEditingTask, completeTask, deleteTask }) => (
+    <StyledSwipeableRow completeTask={ completeTask } deleteTask={ deleteTask } >
       <Row item={item} toggleEditingTask={ toggleEditingTask } />
     </StyledSwipeableRow>
   );
@@ -30,8 +30,8 @@ export default class TaskList extends Component {
       tasks,
       toggleAddingTask,
       toggleEditingTask,
-      completedTask,
-      deletedTask,
+      completeTask,
+      deleteTask,
     } = this.props;
 
     return (
@@ -44,8 +44,8 @@ export default class TaskList extends Component {
               item={ item }
               index={ index }
               toggleEditingTask={ toggleEditingTask }
-              completedTask={ completedTask }
-              deletedTask={ deletedTask }
+              completeTask={ completeTask }
+              deleteTask={ deleteTask }
             />
           )}
           keyExtractor={(item, index) => index}

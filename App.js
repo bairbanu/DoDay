@@ -75,6 +75,14 @@ export default class App extends Component {
     })
   }
 
+  completeTask = (taskID) => {
+    console.log('taskID::::', taskID);
+  }
+
+  deleteTask = (taskID) => {
+    console.log('taskID::::', taskID);
+  }
+
   pickComponent = () => {
     const { addingOrEditingTask, editingTask, tasks, taskBeingEdited } = this.state;
 
@@ -83,7 +91,10 @@ export default class App extends Component {
         <TaskList
           toggleAddingTask={ this.toggleAddingTask }
           toggleEditingTask={ this.toggleEditingTask }
-          tasks={ tasks } />
+          tasks={ tasks }
+          completeTask={ this.completeTask }
+          deleteTask={ this.deleteTask }
+        />
       );
     }
     else if (editingTask) {
