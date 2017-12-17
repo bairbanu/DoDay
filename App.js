@@ -15,17 +15,22 @@ export default class App extends Component {
         id: 0,
         task: 'Initial test task',
         priority: undefined,
-        completed: false
       },
     ],
+    completedTasks: [],
     taskBeingEdited: null,
     addingOrEditingTask: false,
     editingTask: false,
+    viewingCompletedTask: false,
     counterForTaskID: 1
   }
 
   toggleAddingTask = () => {
-    this.setState(prevState => ({ addingOrEditingTask: !prevState.addingOrEditingTask }));
+    this.setState(prevState => {
+        return {
+          addingOrEditingTask: !prevState.addingOrEditingTask
+        }
+      });
   }
 
   toggleEditingTask = (task) => {
@@ -36,13 +41,20 @@ export default class App extends Component {
     })
   }
 
+  toggleCompletedTaskView = () => {
+    this.setState(prevState => {
+      return {
+        viewingCompletedTask: !prevState.viewingCompletedTask
+      }
+    });
+  }
+
   addTask = (task) => {
     this.setState(prevState => {
       const newTask = {
         id: prevState.counterForTaskID,
         task: task.text,
         priority: task.priority,
-        completed: false
       }
       const newCounterID = prevState.counterForTaskID + 1;
 
@@ -62,7 +74,6 @@ export default class App extends Component {
           task: item.task,
           id: item.id,
           priority: item.priority,
-          completed: false
         }
       }
       return task;
@@ -76,21 +87,49 @@ export default class App extends Component {
   }
 
   completeTask = (taskID) => {
-    console.log('taskID::::', taskID);
+    const finishedTask = this.state.tasks.filter(task => taskID === task.id);
+    const newTasks = this.state.tasks.filter(task => taskID !== task.id);
+
+    this.setState(prevState => {
+      return {
+        tasks: [...newTasks],
+        completedTasks: [...prevState.completedTasks, ...finishedTask]
+      }
+    });
   }
 
   deleteTask = (taskID) => {
-    console.log('taskID::::', taskID);
+    console.log('deleted taskID::::', taskID);
   }
 
   pickComponent = () => {
-    const { addingOrEditingTask, editingTask, tasks, taskBeingEdited } = this.state;
+    const {
+      addingOrEditingTask,
+      editingTask,
+      tasks,
+      taskBeingEdited,
+      viewingCompletedTask,
+      toggleCompletedTaskView,
+    } = this.state;
 
     if (!addingOrEditingTask) {
       return (
         <TaskList
           toggleAddingTask={ this.toggleAddingTask }
           toggleEditingTask={ this.toggleEditingTask }
+          toggleCompletedTaskView={ this.toggleCompletedTaskView }
+          tasks={ tasks }
+          completeTask={ this.completeTask }
+          deleteTask={ this.deleteTask }
+        />
+      );
+    }
+    else if (viewingCompletedTask) {
+      return (
+        <TaskList
+          toggleAddingTask={ this.toggleAddingTask }
+          toggleEditingTask={ this.toggleEditingTask }
+          toggleCompletedTaskView={ this.toggleCompletedTaskView }
           tasks={ tasks }
           completeTask={ this.completeTask }
           deleteTask={ this.deleteTask }

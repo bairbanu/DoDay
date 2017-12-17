@@ -25,11 +25,16 @@ const SwipeableRow = ({ item, index, toggleEditingTask, completeTask, deleteTask
   );
 
 export default class TaskList extends Component {
+  test = () => {
+    console.log('awesome!');
+  }
+
   render() {
     const {
       tasks,
       toggleAddingTask,
       toggleEditingTask,
+      toggleCompletedTaskView,
       completeTask,
       deleteTask,
     } = this.props;
@@ -54,6 +59,7 @@ export default class TaskList extends Component {
           large
           title="Add"
           onPress={ toggleAddingTask }
+          onLongPress= { toggleCompletedTaskView }
         />
       </View>
     );

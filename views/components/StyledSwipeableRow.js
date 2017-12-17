@@ -16,7 +16,6 @@ export default class StyledSwipeableRow extends Component {
       extrapolate: 'clamp',
     });
     return (
-      // onPress={ this.close }
       <RectButton style={ styles.leftAction } >
         <AnimatedIcon
           name="archive"
@@ -35,7 +34,7 @@ export default class StyledSwipeableRow extends Component {
       extrapolate: 'clamp',
     });
     return (
-      <RectButton style={ styles.rightAction } onPress={ this.close }>
+      <RectButton style={ styles.rightAction } >
         <AnimatedIcon
           name="delete-forever"
           size={ 30 }
@@ -50,13 +49,18 @@ export default class StyledSwipeableRow extends Component {
     this._swipeableRow = ref;
   };
 
-  closeLeft = () => {
-    // console.log('this._swipeableRow.props.children.props.item::::', this._swipeableRow.props.children.props.item);
+  complete = () => {
     this._swipeableRow.close();
+
+    const { id } = this._swipeableRow.props.children.props.item;
+    this.props.completeTask(id);
   };
 
-  closeRight = () => {
+  remove = () => {
     this._swipeableRow.close();
+
+    const { id } = this._swipeableRow.props.children.props.item;
+    this.props.deleteTask(id);
   }
 
   render() {
@@ -69,8 +73,8 @@ export default class StyledSwipeableRow extends Component {
           rightThreshold={ 80 }
           renderLeftActions={ this.renderLeftActions }
           renderRightActions={ this.renderRightActions }
-          onSwipeableLeftOpen= { this.closeLeft }
-          onSwipeableRightOpen= { this.closeRight } >
+          onSwipeableLeftOpen= { this.complete }
+          onSwipeableRightOpen= { this.remove } >
         { children }
       </Swipeable>
     );
