@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { RectButton } from 'react-native-gesture-handler';
 

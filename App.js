@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import {
   StyleSheet,
   Text,
-  View
+  View,
+  AppState,
 } from 'react-native';
 
 import moment from 'moment';
@@ -23,6 +24,33 @@ export default class App extends Component {
     editingTask: false,
     viewingCompletedTask: false,
     counterForTaskID: 1
+  }
+
+  // do the to do list disappearing stuff in this hook
+  componentWillMount() {
+    const timeGreaterThanThreshold = isTimeGreaterThan('4 PM');
+    // will get back a true or false
+    // if true, empty out tasks
+    // if false, do nothing
+    this.setState({
+      tasks: [],
+    })
+  }
+
+  componentDidMount() {
+    AppState.addEventListener('change', this.handleAppStateChange);
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this.handleAppStateChange);
+  }
+
+  handleAppStateChange = (nextAppState) => {
+    console.log('nextAppState:::', nextAppState);
+    // when app is going to the background:
+    // write to persistent data
+    // when app is coming to foreground:
+    // read from persistent data and update state
   }
 
   toggleAddingTask = () => {
@@ -96,10 +124,14 @@ export default class App extends Component {
         completedTasks: [...prevState.completedTasks, ...finishedTask]
       }
     });
+    console.log('state:::', this.state);
   }
 
   deleteTask = (taskID) => {
-    console.log('deleted taskID::::', taskID);
+    const newTasks = this.state.tasks.filter(task => taskID !== task.id);
+    this.setState({
+      tasks: [...newTasks]
+    });
   }
 
   pickComponent = () => {
@@ -110,9 +142,10 @@ export default class App extends Component {
       taskBeingEdited,
       viewingCompletedTask,
       toggleCompletedTaskView,
+      completedTasks,
     } = this.state;
 
-    if (!addingOrEditingTask) {
+    if (!addingOrEditingTask && !viewingCompletedTask) {
       return (
         <TaskList
           toggleAddingTask={ this.toggleAddingTask }
@@ -130,7 +163,7 @@ export default class App extends Component {
           toggleAddingTask={ this.toggleAddingTask }
           toggleEditingTask={ this.toggleEditingTask }
           toggleCompletedTaskView={ this.toggleCompletedTaskView }
-          tasks={ tasks }
+          tasks={ completedTasks }
           completeTask={ this.completeTask }
           deleteTask={ this.deleteTask }
         />
@@ -167,6 +200,12 @@ export default class App extends Component {
       </View>
     );
   }
+}
+
+// make a utility function in another file
+const isTimeGreaterThan = (threshold) => {
+  const currentTime = moment().format('LT');
+  // will need to check both time and date
 }
 
 const styles = StyleSheet.create({
