@@ -29,12 +29,11 @@ export default class App extends Component {
   // do the to do list disappearing stuff in this hook
   componentWillMount() {
     const timeGreaterThanThreshold = isTimeGreaterThan('4 PM');
-    // will get back a true or false
-    // if true, empty out tasks
-    // if false, do nothing
-    this.setState({
-      tasks: [],
-    })
+    if (timeGreaterThanThreshold) {
+      this.setState({
+        tasks: [],
+      });
+    }
   }
 
   componentDidMount() {
@@ -204,8 +203,9 @@ export default class App extends Component {
 
 // make a utility function in another file
 const isTimeGreaterThan = (threshold) => {
-  const currentTime = moment().format('LT');
-  // will need to check both time and date
+  const currentTime = moment().format('HH:mm DD');
+  // if am or pm match up, then I can just check
+  console.log(currentTime);
 }
 
 const styles = StyleSheet.create({

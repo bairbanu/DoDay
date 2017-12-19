@@ -11,8 +11,8 @@ const Row = ({ item, toggleEditingTask }) => {
     <RectButton
       style={ styles.rectButton }
       onPress={ toggleEditingTask.bind(this, item) } >
-        <Text numberOfLines={2} style={styles.messageText}>
-          {item.task}
+        <Text numberOfLines={2} style={ styles.messageText }>
+          { item.task }
         </Text>
     </RectButton>
   );
