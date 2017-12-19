@@ -20,7 +20,7 @@ const Row = ({ item, toggleEditingTask }) => {
 
 const SwipeableRow = ({ item, index, toggleEditingTask, completeTask, deleteTask }) => (
     <StyledSwipeableRow completeTask={ completeTask } deleteTask={ deleteTask } >
-      <Row item={item} toggleEditingTask={ toggleEditingTask } />
+      <Row item={ item } toggleEditingTask={ toggleEditingTask } />
     </StyledSwipeableRow>
   );
 

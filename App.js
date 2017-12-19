@@ -23,20 +23,18 @@ export default class App extends Component {
     addingOrEditingTask: false,
     editingTask: false,
     viewingCompletedTask: false,
-    counterForTaskID: 1
+    counterForTaskID: 1,
+    refreshDate: null,
   }
 
   // do the to do list disappearing stuff in this hook
   componentWillMount() {
-    const timeGreaterThanThreshold = isTimeGreaterThan('4 PM');
-    if (timeGreaterThanThreshold) {
-      this.setState({
-        tasks: [],
-      });
-    }
+    this.handleFirstTimeUser();
+    this.shouldListRefresh();
   }
 
   componentDidMount() {
+    console.log(this.state);
     AppState.addEventListener('change', this.handleAppStateChange);
   }
 
@@ -45,11 +43,53 @@ export default class App extends Component {
   }
 
   handleAppStateChange = (nextAppState) => {
-    console.log('nextAppState:::', nextAppState);
+    // console.log('nextAppState:::', nextAppState);
     // when app is going to the background:
     // write to persistent data
     // when app is coming to foreground:
     // read from persistent data and update state
+  }
+
+  handleFirstTimeUser = () => {
+    const { refreshDate } = this.state;
+
+    if (refreshDate === null)
+      this.setState({
+        refreshDate: moment().add(1, 'days').format('DD')
+      });
+  }
+
+  shouldListRefresh = () => {
+    const refreshTimeThreshold = 5; // in military time, so 5 AM
+
+    const shouldTasksRefresh = this.checkTasksRefresh(refreshTimeThreshold);
+    if (shouldTasksRefresh) {
+      this.refreshList();
+    }
+  }
+
+  checkTasksRefresh = (timeThreshold) => {
+    // currently not consider thresholds to be as granular as minutes
+    const currentTime = Number(moment().format('HH'));
+    const currentDate = Number(moment().format('DD'));
+    const { refreshDate } = this.state;
+
+    if (currentDate < Number(refreshDate))
+      return false;
+    else if (currentDate === Number(refreshDate)) {
+      if (currentTime < timeThreshold)
+        return false;
+      else if (currentTime > timeThreshold)
+        return true;
+    }
+  }
+
+
+  refreshList = () => {
+    this.setState({
+      tasks: [],
+      refreshDate: moment().add(1, 'days').format('DD')
+    });
   }
 
   toggleAddingTask = () => {
@@ -199,13 +239,6 @@ export default class App extends Component {
       </View>
     );
   }
-}
-
-// make a utility function in another file
-const isTimeGreaterThan = (threshold) => {
-  const currentTime = moment().format('HH:mm DD');
-  // if am or pm match up, then I can just check
-  console.log(currentTime);
 }
 
 const styles = StyleSheet.create({
