@@ -1,8 +1,13 @@
 import React, { Component } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+} from 'react-native';
 
 import { FlatList, RectButton } from 'react-native-gesture-handler';
-import { Button } from 'react-native-elements';
 
 import StyledSwipeableRow from './StyledSwipeableRow';
 
@@ -11,7 +16,7 @@ const Row = ({ item, toggleEditingTask }) => {
     <RectButton
       style={ styles.rectButton }
       onPress={ toggleEditingTask.bind(this, item) } >
-        <Text numberOfLines={2} style={ styles.messageText }>
+        <Text numberOfLines={ 2 } style={ styles.messageText }>
           { item.task }
         </Text>
     </RectButton>
@@ -40,28 +45,22 @@ export default class TaskList extends Component {
     } = this.props;
 
     return (
-      <View>
-        <FlatList
-          data={ tasks }
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          renderItem={({ item, index }) => (
-            <SwipeableRow
-              item={ item }
-              index={ index }
-              toggleEditingTask={ toggleEditingTask }
-              completeTask={ completeTask }
-              deleteTask={ deleteTask }
-            />
-          )}
-          keyExtractor={(item, index) => index}
-        />
-        <Button
-          large
-          title="Add"
-          onPress={ toggleAddingTask }
-          onLongPress= { toggleCompletedTaskView }
-        />
-      </View>
+        <ScrollView>
+          <FlatList
+            data={ tasks }
+            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            renderItem={({ item, index }) => (
+              <SwipeableRow
+                item={ item }
+                index={ index }
+                toggleEditingTask={ toggleEditingTask }
+                completeTask={ completeTask }
+                deleteTask={ deleteTask }
+              />
+            )}
+            keyExtractor={(item, index) => index}
+          />
+        </ScrollView>
     );
   }
 }

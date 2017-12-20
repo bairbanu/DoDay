@@ -5,31 +5,27 @@ import {
   View,
   AppState,
   AsyncStorage,
+  Dimensions,
 } from 'react-native';
 
 import moment from 'moment';
+import { Button } from 'react-native-elements';
 import { TaskList, AddOrEditTask } from './views/components';
 
 export default class ToDoModel extends Component {
   state = {
-    tasks: [
-      {
-        id: 0,
-        task: 'Initial test task',
-        priority: null,
-      },
-    ],
+    tasks: [],
     completedTasks: [],
     taskBeingEdited: null,
     addingOrEditingTask: false,
     editingTask: false,
     viewingCompletedTask: false,
     counterForTaskID: 1,
-    refreshDate: null,
+    // make below into a function::
+    refreshDate: moment().add(1, 'days').format('DD'),
   }
 
   componentWillMount() {
-    this.handleFirstTimeUser();
     this.shouldListRefresh();
   }
 
@@ -43,6 +39,7 @@ export default class ToDoModel extends Component {
   }
 
   handleAppStateChange = (nextAppState) => {
+    console.log('nextAppState::', nextAppState);
     if (nextAppState === 'active') {
       const refresh = this.shouldListRefresh();
       if (!refresh)
@@ -51,15 +48,6 @@ export default class ToDoModel extends Component {
 
     else if (nextAppState === 'inactive')
       this.persistState();
-  }
-
-  handleFirstTimeUser = () => {
-    const { refreshDate } = this.state;
-
-    if (refreshDate === null)
-      this.setState({
-        refreshDate: moment().add(1, 'days').format('DD')
-      });
   }
 
   shouldListRefresh = () => {
@@ -78,9 +66,11 @@ export default class ToDoModel extends Component {
     const currentDate = Number(moment().format('DD'));
     const { refreshDate } = this.state;
 
+    // need to handle the monthly edge case. What happens
+    // when months change. Then, what happens when year changes.
     if (currentDate < Number(refreshDate))
       return false;
-    else if (currentDate === Number(refreshDate)) {
+    else if (currentDate >= Number(refreshDate)) {
       if (currentTime < timeThreshold)
         return false;
       else if (currentTime > timeThreshold)
@@ -209,9 +199,7 @@ export default class ToDoModel extends Component {
     if (!addingOrEditingTask && !viewingCompletedTask) {
       return (
         <TaskList
-          toggleAddingTask={ this.toggleAddingTask }
           toggleEditingTask={ this.toggleEditingTask }
-          toggleCompletedTaskView={ this.toggleCompletedTaskView }
           tasks={ tasks }
           completeTask={ this.completeTask }
           deleteTask={ this.deleteTask }
@@ -221,9 +209,7 @@ export default class ToDoModel extends Component {
     else if (viewingCompletedTask) {
       return (
         <TaskList
-          toggleAddingTask={ this.toggleAddingTask }
           toggleEditingTask={ this.toggleEditingTask }
-          toggleCompletedTaskView={ this.toggleCompletedTaskView }
           tasks={ completedTasks }
           completeTask={ this.completeTask }
           deleteTask={ this.deleteTask }
@@ -255,25 +241,46 @@ export default class ToDoModel extends Component {
       <View>
         {/* Make this a date shower stateless component, and add a thin separator */}
         <Text style={ styles.header }> { moment().format('MMMM Do, YYYY') } </Text>
-        <View>
+        <View style={ styles.content }>
           { displayComponent }
+        </View>
+        <View style={ styles.footer }>
+          <Button
+            large
+            title="Add"
+            onPress={ this.toggleAddingTask }
+            onLongPress= { this.toggleCompletedTaskView }
+          />
         </View>
       </View>
     );
   }
 }
 
+const setHeaderHeight = () => {
+  return Dimensions.get('window').height * .07;
+}
+
+const setFooterHeight = () => {
+  return Dimensions.get('window').height * .1;
+}
+
+const setContentHeight = () => {
+  return Dimensions.get('window').height * .75;
+}
+
 const styles = StyleSheet.create({
-  flatList: {
-    marginTop: 50,
-  },
-  task: {
-    marginTop: 20,
-    marginBottom: 10
-  },
   header: {
     fontSize: 30,
+    marginTop: 50,
+    height: setHeaderHeight(),
     textAlign: 'center',
-    marginTop: 50
+  },
+  footer: {
+    height: setFooterHeight(),
+    bottom: 0
+  },
+  content: {
+    height: setContentHeight()
   }
 });
