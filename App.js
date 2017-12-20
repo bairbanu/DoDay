@@ -4,18 +4,19 @@ import {
   Text,
   View,
   AppState,
+  AsyncStorage,
 } from 'react-native';
 
 import moment from 'moment';
 import { TaskList, AddOrEditTask } from './views/components';
 
-export default class App extends Component {
+export default class ToDoModel extends Component {
   state = {
     tasks: [
       {
         id: 0,
         task: 'Initial test task',
-        priority: undefined,
+        priority: null,
       },
     ],
     completedTasks: [],
@@ -27,14 +28,13 @@ export default class App extends Component {
     refreshDate: null,
   }
 
-  // do the to do list disappearing stuff in this hook
   componentWillMount() {
     this.handleFirstTimeUser();
     this.shouldListRefresh();
   }
 
   componentDidMount() {
-    console.log(this.state);
+    // console.log(this.state);
     AppState.addEventListener('change', this.handleAppStateChange);
   }
 
@@ -43,11 +43,14 @@ export default class App extends Component {
   }
 
   handleAppStateChange = (nextAppState) => {
-    // console.log('nextAppState:::', nextAppState);
-    // when app is going to the background:
-    // write to persistent data
-    // when app is coming to foreground:
-    // read from persistent data and update state
+    if (nextAppState === 'active') {
+      const refresh = this.shouldListRefresh();
+      if (!refresh)
+        this.getState();
+    }
+
+    else if (nextAppState === 'inactive')
+      this.persistState();
   }
 
   handleFirstTimeUser = () => {
@@ -66,6 +69,7 @@ export default class App extends Component {
     if (shouldTasksRefresh) {
       this.refreshList();
     }
+    return shouldTasksRefresh;
   }
 
   checkTasksRefresh = (timeThreshold) => {
@@ -84,12 +88,31 @@ export default class App extends Component {
     }
   }
 
-
   refreshList = () => {
     this.setState({
       tasks: [],
       refreshDate: moment().add(1, 'days').format('DD')
     });
+  }
+
+  persistState = () => {
+    const stateJSON = JSON.stringify(this.state);
+
+    AsyncStorage.setItem('@focus_monkey', stateJSON)
+      .catch(error => {
+        console.log('Async set error:', error);
+      })
+  }
+
+  getState = () => {
+    AsyncStorage.getItem('@focus_monkey')
+      .then(stateJSON => {
+        const stateObject = JSON.parse(stateJSON);
+        this.setState(stateObject);
+      })
+      .catch(error => {
+        console.log('Async get error:', error);
+      })
   }
 
   toggleAddingTask = () => {
@@ -163,7 +186,6 @@ export default class App extends Component {
         completedTasks: [...prevState.completedTasks, ...finishedTask]
       }
     });
-    console.log('state:::', this.state);
   }
 
   deleteTask = (taskID) => {

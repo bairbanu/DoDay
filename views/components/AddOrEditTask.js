@@ -10,7 +10,7 @@ import {
 export default class TaskDetail extends Component {
   state = {
     text: '',
-    priority: undefined,
+    priority: null,
   }
 
   componentWillMount = () => {
