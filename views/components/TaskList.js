@@ -23,38 +23,69 @@ const Row = ({ item, toggleEditingTask }) => {
   );
 };
 
-const SwipeableRow = ({ item, index, toggleEditingTask, completeTask, deleteTask }) => (
-    <StyledSwipeableRow completeTask={ completeTask } deleteTask={ deleteTask } >
+const SwipeableRow = ({
+  item,
+  index,
+  toggleEditingTask,
+  completeTask,
+  viewingCompletedTask,
+  unCompleteTask,
+  deleteTask
+}) => (
+    <StyledSwipeableRow
+      completeTask={ completeTask }
+      deleteTask={ deleteTask }
+      viewingCompletedTask={ viewingCompletedTask }
+      unCompleteTask={ unCompleteTask }
+    >
       <Row item={ item } toggleEditingTask={ toggleEditingTask } />
     </StyledSwipeableRow>
   );
 
 export default class TaskList extends Component {
-  test = () => {
-    console.log('awesome!');
-  }
-
   render() {
     const {
       tasks,
+      tasksEmpty,
+      completedTasksEmpty,
       toggleAddingTask,
       toggleEditingTask,
       toggleCompletedTaskView,
+      viewingCompletedTask,
       completeTask,
+      unCompleteTask,
       deleteTask,
     } = this.props;
+
+    // console.log('empty prop::', tasksEmpty, completedTasksEmpty);
+    // would need a way to add text for new day tasks
+    // as well as when tasks for a given day are done
+    if (tasksEmpty)
+      return (
+        <View style={ styles.emptyContainer }>
+          <Text style={ styles.emptyText }> No current tasks. </Text>
+        </View>
+      );
+    if (completedTasksEmpty)
+      return (
+        <View style={ styles.emptyContainer }>
+          <Text style={ styles.emptyText }> No completed tasks. </Text>
+        </View>
+      );
 
     return (
         <ScrollView>
           <FlatList
             data={ tasks }
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
+            ItemSeparatorComponent={() => <View style={ styles.separator } />}
             renderItem={({ item, index }) => (
               <SwipeableRow
                 item={ item }
                 index={ index }
                 toggleEditingTask={ toggleEditingTask }
+                viewingCompletedTask={ viewingCompletedTask }
                 completeTask={ completeTask }
+                unCompleteTask={ unCompleteTask }
                 deleteTask={ deleteTask }
               />
             )}
@@ -82,4 +113,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     backgroundColor: 'transparent',
   },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 20,
+  }
 });

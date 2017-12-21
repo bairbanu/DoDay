@@ -61,6 +61,13 @@ export default class StyledSwipeableRow extends Component {
     this.props.completeTask(id);
   };
 
+  unComplete = () => {
+    this._swipeableRow.close();
+
+    const { id } = this._swipeableRow.props.children.props.item;
+    this.props.unCompleteTask(id);
+  }
+
   remove = () => {
     this._swipeableRow.close();
 
@@ -68,18 +75,37 @@ export default class StyledSwipeableRow extends Component {
     this.props.deleteTask(id);
   }
 
+  pickProps = () => {
+    const { viewingCompletedTask } = this.props;
+
+    if (!viewingCompletedTask)
+      return {
+        ref: this.updateRef,
+        friction: 2,
+        leftThreshold: 80,
+        rightThreshold: 80,
+        renderLeftActions: this.renderLeftActions,
+        renderRightActions: this.renderRightActions,
+        onSwipeableLeftOpen: this.complete,
+        onSwipeableRightOpen: this.remove,
+      }
+    else
+      return {
+        ref: this.updateRef,
+        friction: 2,
+        leftThreshold: 80,
+        rightThreshold: 80,
+        renderLeftActions: this.renderLeftActions,
+        onSwipeableLeftOpen: this.unComplete,
+      }
+  }
+
   render() {
     const { children } = this.props;
+    const viewDependentProps = this.pickProps();
+
     return (
-      <Swipeable
-          ref={ this.updateRef }
-          friction={ 2 }
-          leftThreshold={ 80 }
-          rightThreshold={ 80 }
-          renderLeftActions={ this.renderLeftActions }
-          renderRightActions={ this.renderRightActions }
-          onSwipeableLeftOpen= { this.complete }
-          onSwipeableRightOpen= { this.remove } >
+      <Swipeable { ...viewDependentProps } >
         { children }
       </Swipeable>
     );

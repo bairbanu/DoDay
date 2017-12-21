@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import moment from 'moment';
+
 import {
   StyleSheet,
   Text,
@@ -8,9 +10,12 @@ import {
   Dimensions,
 } from 'react-native';
 
-import moment from 'moment';
-import { Button } from 'react-native-elements';
-import { TaskList, AddOrEditTask } from './views/components';
+import {
+  TaskList,
+  AddOrEditTask,
+  Header,
+  Footer,
+} from './views';
 
 export default class ToDoModel extends Component {
   state = {
@@ -21,23 +26,26 @@ export default class ToDoModel extends Component {
     editingTask: false,
     viewingCompletedTask: false,
     counterForTaskID: 1,
-    // make below into a function::
-    refreshDate: moment().add(1, 'days').format('DD'),
+    refreshDate: null,
   }
 
+  /* ---------- HOOK ---------- */
   componentWillMount() {
+    this.handleFirstTimeUser();
     this.shouldListRefresh();
   }
 
+  /* ---------- HOOK ---------- */
   componentDidMount() {
-    // console.log(this.state);
     AppState.addEventListener('change', this.handleAppStateChange);
   }
 
+  /* ---------- HOOK ---------- */
   componentWillUnmount() {
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
 
+  /* ---------- HANDLER ---------- */
   handleAppStateChange = (nextAppState) => {
     console.log('nextAppState::', nextAppState);
     if (nextAppState === 'active') {
@@ -50,16 +58,26 @@ export default class ToDoModel extends Component {
       this.persistState();
   }
 
+  /* ---------- HANDLER ---------- */
+  handleFirstTimeUser = () => {
+    if (this.state.refreshDate === null)
+      this.setState({
+        refreshDate: moment().add(1, 'days').format('DD')
+      });
+  }
+
+  /* ---------- UTIL ---------- */
   shouldListRefresh = () => {
     const refreshTimeThreshold = 5; // in military time, so 5 AM
 
     const shouldTasksRefresh = this.checkTasksRefresh(refreshTimeThreshold);
     if (shouldTasksRefresh) {
-      this.refreshList();
+      this.refreshTaskList();
     }
     return shouldTasksRefresh;
   }
 
+  /* ---------- UTIL, needs refreshDate from state ---------- */
   checkTasksRefresh = (timeThreshold) => {
     // currently not consider thresholds to be as granular as minutes
     const currentTime = Number(moment().format('HH'));
@@ -78,13 +96,7 @@ export default class ToDoModel extends Component {
     }
   }
 
-  refreshList = () => {
-    this.setState({
-      tasks: [],
-      refreshDate: moment().add(1, 'days').format('DD')
-    });
-  }
-
+  /* ---------- UTIL, needs the state ---------- */
   persistState = () => {
     const stateJSON = JSON.stringify(this.state);
 
@@ -94,6 +106,7 @@ export default class ToDoModel extends Component {
       })
   }
 
+  /* ---------- UTIL, can abstract away AsyncStorage logic ---------- */
   getState = () => {
     AsyncStorage.getItem('@focus_monkey')
       .then(stateJSON => {
@@ -105,6 +118,7 @@ export default class ToDoModel extends Component {
       })
   }
 
+  /* ---------- TOGGLING ---------- */
   toggleAddingTask = () => {
     this.setState(prevState => {
         return {
@@ -129,12 +143,13 @@ export default class ToDoModel extends Component {
     });
   }
 
-  addTask = (task) => {
+  /* ---------- MANIPULATING TASKS ---------- */
+  addTask = (item) => {
     this.setState(prevState => {
       const newTask = {
         id: prevState.counterForTaskID,
-        task: task.text,
-        priority: task.priority,
+        task: item.text,
+        priority: item.priority,
       }
       const newCounterID = prevState.counterForTaskID + 1;
 
@@ -173,9 +188,21 @@ export default class ToDoModel extends Component {
     this.setState(prevState => {
       return {
         tasks: [...newTasks],
-        completedTasks: [...prevState.completedTasks, ...finishedTask]
+        completedTasks: [...prevState.completedTasks, ...finishedTask],
       }
     });
+  }
+
+  unCompleteTask = (taskID) => {
+    const unFinishedTask = this.state.completedTasks.filter(task => taskID === task.id);
+    const newCompletedTasks = this.state.completedTasks.filter(task => taskID !== task.id);
+
+    this.setState(prevState => {
+      return {
+        tasks: [...prevState.tasks, ...unFinishedTask],
+        completedTasks: [...newCompletedTasks],
+      }
+    })
   }
 
   deleteTask = (taskID) => {
@@ -185,6 +212,14 @@ export default class ToDoModel extends Component {
     });
   }
 
+  refreshTaskList = () => {
+    this.setState({
+      tasks: [],
+      refreshDate: moment().add(1, 'days').format('DD')
+    });
+  }
+
+  /* ---------- RENDER LOGIC ---------- */
   pickComponent = () => {
     const {
       addingOrEditingTask,
@@ -196,24 +231,46 @@ export default class ToDoModel extends Component {
       completedTasks,
     } = this.state;
 
+    let tasksEmpty = false;
+    let completedTasksEmpty = false;
+    if (tasks.length === 0) tasksEmpty = true;
+    if (completedTasks.length === 0) completedTasksEmpty = true;
+
     if (!addingOrEditingTask && !viewingCompletedTask) {
       return (
-        <TaskList
-          toggleEditingTask={ this.toggleEditingTask }
-          tasks={ tasks }
-          completeTask={ this.completeTask }
-          deleteTask={ this.deleteTask }
-        />
+        <View>
+          <View>
+            <Header headerStyle={ styles.header } />
+          </View>
+          <View style={ styles.content }>
+            <TaskList
+              toggleEditingTask={ this.toggleEditingTask }
+              tasks={ tasks }
+              tasksEmpty = { tasksEmpty }
+              completeTask={ this.completeTask }
+              deleteTask={ this.deleteTask }
+            />
+          </View>
+        </View>
       );
     }
     else if (viewingCompletedTask) {
       return (
-        <TaskList
-          toggleEditingTask={ this.toggleEditingTask }
-          tasks={ completedTasks }
-          completeTask={ this.completeTask }
-          deleteTask={ this.deleteTask }
-        />
+        <View>
+          <View>
+            <Header headerStyle={ styles.header } />
+          </View>
+          <View style={ styles.content }>
+            <TaskList
+              toggleEditingTask={ this.toggleEditingTask }
+              tasks={ completedTasks }
+              completedTasksEmpty={ completedTasksEmpty }
+              viewingCompletedTask={ viewingCompletedTask }
+              unCompleteTask={ this.unCompleteTask }
+              deleteTask={ this.deleteTask }
+            />
+          </View>
+        </View>
       );
     }
     else if (editingTask) {
@@ -239,48 +296,34 @@ export default class ToDoModel extends Component {
 
     return (
       <View>
-        {/* Make this a date shower stateless component, and add a thin separator */}
-        <Text style={ styles.header }> { moment().format('MMMM Do, YYYY') } </Text>
-        <View style={ styles.content }>
-          { displayComponent }
-        </View>
-        <View style={ styles.footer }>
-          <Button
-            large
-            title="Add"
-            onPress={ this.toggleAddingTask }
-            onLongPress= { this.toggleCompletedTaskView }
-          />
-        </View>
+        { displayComponent }
+        <Footer
+          footerStyle={ styles.footer }
+          toggleAddingTask={ this.toggleAddingTask }
+          toggleCompletedTaskView={ this.toggleCompletedTaskView }
+          viewingCompletedTask={ this.state.viewingCompletedTask }
+        />
       </View>
     );
   }
 }
 
-const setHeaderHeight = () => {
-  return Dimensions.get('window').height * .07;
-}
-
-const setFooterHeight = () => {
-  return Dimensions.get('window').height * .1;
-}
-
-const setContentHeight = () => {
-  return Dimensions.get('window').height * .75;
+const setHeight = (percentage) => {
+  return Dimensions.get('window').height * (percentage / 100);
 }
 
 const styles = StyleSheet.create({
   header: {
     fontSize: 30,
     marginTop: 50,
-    height: setHeaderHeight(),
+    height: setHeight(7),
     textAlign: 'center',
   },
   footer: {
-    height: setFooterHeight(),
+    height: setHeight(18),
     bottom: 0
   },
   content: {
-    height: setContentHeight()
+    height: setHeight(75)
   }
 });
