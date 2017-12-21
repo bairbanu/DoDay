@@ -37,7 +37,6 @@ export default class TaskDetail extends Component {
       this.props.addTask(this.state);
     }
     else if (editing) {
-      // create the edited task and pass it to editTask
       const { taskBeingEdited } = this.props;
 
       const editedTask = {
@@ -51,8 +50,6 @@ export default class TaskDetail extends Component {
   }
 
   render() {
-    // console.log('task being edited:::', this.props.taskBeingEdited);
-
     return (
       <View>
         <Text style={ styles.header }> Enter tasks </Text>

@@ -145,6 +145,14 @@ export default class ToDoModel extends Component {
 
   /* ---------- MANIPULATING TASKS ---------- */
   addTask = (item) => {
+    if (item.text === '') {
+      this.setState({
+        addingOrEditingTask: false,
+        editingTask: false,
+      });
+      return;
+    }
+
     this.setState(prevState => {
       const newTask = {
         id: prevState.counterForTaskID,
@@ -242,13 +250,21 @@ export default class ToDoModel extends Component {
           <View>
             <Header headerStyle={ styles.header } />
           </View>
-          <View style={ styles.content }>
+          <View style={ styles.taskListContainer }>
             <TaskList
               toggleEditingTask={ this.toggleEditingTask }
               tasks={ tasks }
               tasksEmpty = { tasksEmpty }
               completeTask={ this.completeTask }
               deleteTask={ this.deleteTask }
+            />
+          </View>
+          <View>
+            <Footer
+              footerStyle={ styles.footer }
+              toggleAddingTask={ this.toggleAddingTask }
+              toggleCompletedTaskView={ this.toggleCompletedTaskView }
+              viewingCompletedTask={ viewingCompletedTask }
             />
           </View>
         </View>
@@ -260,7 +276,7 @@ export default class ToDoModel extends Component {
           <View>
             <Header headerStyle={ styles.header } />
           </View>
-          <View style={ styles.content }>
+          <View style={ styles.taskListContainer }>
             <TaskList
               toggleEditingTask={ this.toggleEditingTask }
               tasks={ completedTasks }
@@ -270,23 +286,55 @@ export default class ToDoModel extends Component {
               deleteTask={ this.deleteTask }
             />
           </View>
+          <View>
+            <Footer
+              footerStyle={ styles.footer }
+              toggleAddingTask={ this.toggleAddingTask }
+              toggleCompletedTaskView={ this.toggleCompletedTaskView }
+              viewingCompletedTask={ viewingCompletedTask }
+            />
+          </View>
         </View>
       );
     }
     else if (editingTask) {
       return (
-        <AddOrEditTask
-          editTask={ this.editTask }
-          editing={ editingTask }
-          taskBeingEdited={ taskBeingEdited }
-        />
+        <View>
+          <View style={ styles.addOrEditTaskContainer }>
+            <AddOrEditTask
+              editTask={ this.editTask }
+              editing={ editingTask }
+              taskBeingEdited={ taskBeingEdited }
+            />
+          </View>
+          <View>
+            <Footer
+              footerStyle={ styles.footer }
+              toggleAddingTask={ this.toggleAddingTask }
+              toggleCompletedTaskView={ this.toggleCompletedTaskView }
+              viewingCompletedTask={ viewingCompletedTask }
+            />
+          </View>
+        </View>
       );
     }
     else if (!editingTask) {
       return (
-        <AddOrEditTask
-          addTask={ this.addTask }
-        />
+        <View>
+          <View style={ styles.addOrEditTaskContainer }>
+            <AddOrEditTask
+              addTask={ this.addTask }
+            />
+          </View>
+          <View>
+            <Footer
+              footerStyle={ styles.footer }
+              toggleAddingTask={ this.toggleAddingTask }
+              toggleCompletedTaskView={ this.toggleCompletedTaskView }
+              viewingCompletedTask={ viewingCompletedTask }
+            />
+          </View>
+        </View>
       );
     }
   }
@@ -297,12 +345,6 @@ export default class ToDoModel extends Component {
     return (
       <View>
         { displayComponent }
-        <Footer
-          footerStyle={ styles.footer }
-          toggleAddingTask={ this.toggleAddingTask }
-          toggleCompletedTaskView={ this.toggleCompletedTaskView }
-          viewingCompletedTask={ this.state.viewingCompletedTask }
-        />
       </View>
     );
   }
@@ -321,9 +363,12 @@ const styles = StyleSheet.create({
   },
   footer: {
     height: setHeight(18),
-    bottom: 0
+    bottom: 0,
   },
-  content: {
-    height: setHeight(75)
+  taskListContainer: {
+    height: setHeight(75),
+  },
+  addOrEditTaskContainer: {
+    height: setHeight(89),
   }
 });
