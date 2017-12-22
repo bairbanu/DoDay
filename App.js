@@ -7,7 +7,6 @@ import {
   View,
   AppState,
   AsyncStorage,
-  Dimensions,
 } from 'react-native';
 
 import {
@@ -17,12 +16,14 @@ import {
   Footer,
 } from './views';
 
+import { setHeight } from './model/utils';
+
 export default class ToDoModel extends Component {
   state = {
     tasks: [],
     completedTasks: [],
     taskBeingEdited: null,
-    addingOrEditingTask: false,
+    addingOrEditingTask: true,
     editingTask: false,
     viewingCompletedTask: false,
     counterForTaskID: 1,
@@ -350,10 +351,6 @@ export default class ToDoModel extends Component {
   }
 }
 
-const setHeight = (percentage) => {
-  return Dimensions.get('window').height * (percentage / 100);
-}
-
 const styles = StyleSheet.create({
   header: {
     fontSize: 30,
@@ -369,6 +366,6 @@ const styles = StyleSheet.create({
     height: setHeight(75),
   },
   addOrEditTaskContainer: {
-    height: setHeight(89),
+    height: setHeight(88.80),
   }
 });
