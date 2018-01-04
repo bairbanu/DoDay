@@ -3,9 +3,9 @@ import { Text } from 'react-native';
 
 import moment from 'moment';
 
-const Header = ({ headerStyle }) => {
+const Header = ({ headerStyle, toDisplay }) => {
   return (
-    <Text style={ headerStyle }> { moment().format('MMMM Do, YYYY') } </Text>
+    <Text style={ headerStyle }> { toDisplay } </Text>
   );
 }
 

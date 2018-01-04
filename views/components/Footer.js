@@ -3,21 +3,28 @@ import { View } from 'react-native';
 import { Button } from 'react-native-elements';
 
 const Footer = ({
-  footerStyle,toggleAddingTask,
+  footerStyle,
+  toggleAddingTask,
   toggleCompletedTaskView,
   viewingCompletedTask,
+  addingOrEditingTask,
+  buttonText,
 }) => {
   return (
     <View style={ footerStyle }>
       <Button
         large
-        title="∆"
+        title={ buttonText }
         onPress={
           viewingCompletedTask
           ? toggleCompletedTaskView
           : toggleAddingTask
         }
-        onLongPress= { toggleCompletedTaskView }
+        onLongPress= {
+          addingOrEditingTask
+          ? toggleAddingTask
+          : toggleCompletedTaskView
+        }
       />
     </View>
   );

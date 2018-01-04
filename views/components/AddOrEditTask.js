@@ -4,6 +4,7 @@ import {
   StyleSheet,
   TextInput,
   View,
+  ScrollView,
   Dimensions,
   TouchableHighlight,
 } from 'react-native';
@@ -16,6 +17,7 @@ export default class AddOrEditTask extends Component {
     priority: null,
   }
 
+  // if editing a task, this will populate that task for user.
   componentWillMount = () => {
     const { editing } = this.props;
 
@@ -53,15 +55,12 @@ export default class AddOrEditTask extends Component {
   }
 
   handlePrioritySubmit = (priority) => {
-    console.log('this is the priority:::', priority);
+    this.setState({ priority });
   }
 
-  render() {
+  render = () => {
     return (
-      <View style={ styles.container }>
-        <View style={ styles.header }>
-          <Text style={ styles.headerText }> Enter tasks </Text>
-        </View>
+      <ScrollView style={ styles.container }>
         <View style={ styles.textInputContainer }>
           <TextInput
             style={ styles.textInput }
@@ -70,23 +69,25 @@ export default class AddOrEditTask extends Component {
             onSubmitEditing={ this.handleTaskSubmit }
           />
         </View>
+
         <View style={ styles.priorityButtonsContainer }>
           <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 1) }>
             <View style={ [styles.button, styles.priorityButton] }>
-              <Text style={ styles.buttonText }> 1 </Text>
+              <Text style={ styles.buttonText, styles.priorityButtonText }> 1 </Text>
             </View>
           </TouchableHighlight>
-          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null) }>
+          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 2) }>
             <View style={ [styles.button, styles.priorityButton] }>
-              <Text style={ styles.buttonText }> 2 </Text>
+              <Text style={ styles.buttonText, styles.priorityButtonText }> 2 </Text>
             </View>
           </TouchableHighlight>
-          <TouchableHighlight onPress={ this.handlePrioritySubmit }>
+          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 3) }>
             <View style={ [styles.button, styles.priorityButton] }>
-              <Text style={ styles.buttonText }> 3 </Text>
+              <Text style={ styles.buttonText, styles.priorityButtonText }> 3 </Text>
             </View>
           </TouchableHighlight>
         </View>
+
         <View style={ styles.doneButtonContainer }>
           <TouchableHighlight onPress={ this.handleTaskSubmit }>
             <View style={ [styles.button, styles.doneButton] }>
@@ -94,7 +95,7 @@ export default class AddOrEditTask extends Component {
             </View>
           </TouchableHighlight>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -113,10 +114,6 @@ const styles = StyleSheet.create({
   headerText: {
     textAlign: 'center',
     fontSize: 30,
-  },
-  header: {
-    height: setHeight(7),
-    marginTop: 50,
   },
   textInputContainer: {
     height: setHeight(30),
@@ -138,6 +135,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  priorityButtonText: {
+    fontSize: 30,
   },
   doneButtonContainer: {
     marginTop: 30,

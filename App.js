@@ -23,7 +23,7 @@ export default class ToDoModel extends Component {
     tasks: [],
     completedTasks: [],
     taskBeingEdited: null,
-    addingOrEditingTask: true,
+    addingOrEditingTask: false,
     editingTask: false,
     viewingCompletedTask: false,
     counterForTaskID: 1,
@@ -48,7 +48,6 @@ export default class ToDoModel extends Component {
 
   /* ---------- HANDLER ---------- */
   handleAppStateChange = (nextAppState) => {
-    console.log('nextAppState::', nextAppState);
     if (nextAppState === 'active') {
       const refresh = this.shouldListRefresh();
       if (!refresh)
@@ -56,6 +55,7 @@ export default class ToDoModel extends Component {
     }
 
     else if (nextAppState === 'inactive')
+    // consider persisting state each time the user adds, edits, completes, or deletes a task
       this.persistState();
   }
 
@@ -79,7 +79,7 @@ export default class ToDoModel extends Component {
   }
 
   /* ---------- UTIL, needs refreshDate from state ---------- */
-  checkTasksRefresh = (timeThreshold) => {
+  checkTasksRefresh = timeThreshold => {
     // currently not consider thresholds to be as granular as minutes
     const currentTime = Number(moment().format('HH'));
     const currentDate = Number(moment().format('DD'));
@@ -119,6 +119,16 @@ export default class ToDoModel extends Component {
       })
   }
 
+  prioritizeTasks = tasks => {
+    console.log('these are the tasks::', tasks);
+    const firstPriority = tasks.filter(task => task.priority === 1);
+    const secondPriority = tasks.filter(task => task.priority === 2);
+    const thirdPriority = tasks.filter(task => task.priority === 3);
+    const nullPriority = tasks.filter(task => task.priority === null);
+
+    return [...firstPriority, ...secondPriority, ...thirdPriority, ...nullPriority];
+  }
+
   /* ---------- TOGGLING ---------- */
   toggleAddingTask = () => {
     this.setState(prevState => {
@@ -145,7 +155,8 @@ export default class ToDoModel extends Component {
   }
 
   /* ---------- MANIPULATING TASKS ---------- */
-  addTask = (item) => {
+  addTask = item => {
+    // validating not adding empty tasks
     if (item.text === '') {
       this.setState({
         addingOrEditingTask: false,
@@ -162,8 +173,10 @@ export default class ToDoModel extends Component {
       }
       const newCounterID = prevState.counterForTaskID + 1;
 
+      const prioritizedTasks = this.prioritizeTasks([...prevState.tasks, newTask]);
+
       return {
-        tasks: [...prevState.tasks, newTask],
+        tasks: prioritizedTasks,
         addingOrEditingTask: false,
         editingTask: false,
         counterForTaskID: newCounterID
@@ -171,7 +184,7 @@ export default class ToDoModel extends Component {
     })
   }
 
-  editTask = (item) => {
+  editTask = item => {
     const newTasks = this.state.tasks.map(task => {
       if (task.id === item.id) {
         return {
@@ -182,6 +195,7 @@ export default class ToDoModel extends Component {
       }
       return task;
     })
+
     this.setState({
       tasks: newTasks,
       taskBeingEdited: null,
@@ -190,7 +204,7 @@ export default class ToDoModel extends Component {
     })
   }
 
-  completeTask = (taskID) => {
+  completeTask = taskID => {
     const finishedTask = this.state.tasks.filter(task => taskID === task.id);
     const newTasks = this.state.tasks.filter(task => taskID !== task.id);
 
@@ -202,7 +216,7 @@ export default class ToDoModel extends Component {
     });
   }
 
-  unCompleteTask = (taskID) => {
+  unCompleteTask = taskID => {
     const unFinishedTask = this.state.completedTasks.filter(task => taskID === task.id);
     const newCompletedTasks = this.state.completedTasks.filter(task => taskID !== task.id);
 
@@ -214,7 +228,7 @@ export default class ToDoModel extends Component {
     })
   }
 
-  deleteTask = (taskID) => {
+  deleteTask = taskID => {
     const newTasks = this.state.tasks.filter(task => taskID !== task.id);
     this.setState({
       tasks: [...newTasks]
@@ -249,7 +263,7 @@ export default class ToDoModel extends Component {
       return (
         <View>
           <View>
-            <Header headerStyle={ styles.header } />
+            <Header headerStyle={ styles.header } toDisplay={ moment().format('MMMM Do, YYYY') }/>
           </View>
           <View style={ styles.taskListContainer }>
             <TaskList
@@ -266,6 +280,7 @@ export default class ToDoModel extends Component {
               toggleAddingTask={ this.toggleAddingTask }
               toggleCompletedTaskView={ this.toggleCompletedTaskView }
               viewingCompletedTask={ viewingCompletedTask }
+              buttonText="∆"
             />
           </View>
         </View>
@@ -275,7 +290,7 @@ export default class ToDoModel extends Component {
       return (
         <View>
           <View>
-            <Header headerStyle={ styles.header } />
+            <Header headerStyle={ styles.header } toDisplay={ moment().format('MMMM Do, YYYY') } />
           </View>
           <View style={ styles.taskListContainer }>
             <TaskList
@@ -293,6 +308,7 @@ export default class ToDoModel extends Component {
               toggleAddingTask={ this.toggleAddingTask }
               toggleCompletedTaskView={ this.toggleCompletedTaskView }
               viewingCompletedTask={ viewingCompletedTask }
+              buttonText="∆"
             />
           </View>
         </View>
@@ -301,6 +317,9 @@ export default class ToDoModel extends Component {
     else if (editingTask) {
       return (
         <View>
+          <View>
+            <Header headerStyle={ styles.header } toDisplay="Edit Task" />
+          </View>
           <View style={ styles.addOrEditTaskContainer }>
             <AddOrEditTask
               editTask={ this.editTask }
@@ -314,6 +333,8 @@ export default class ToDoModel extends Component {
               toggleAddingTask={ this.toggleAddingTask }
               toggleCompletedTaskView={ this.toggleCompletedTaskView }
               viewingCompletedTask={ viewingCompletedTask }
+              addingOrEditingTask={ addingOrEditingTask }
+              buttonText="X"
             />
           </View>
         </View>
@@ -322,6 +343,9 @@ export default class ToDoModel extends Component {
     else if (!editingTask) {
       return (
         <View>
+          <View>
+            <Header headerStyle={ styles.header } toDisplay="Add Task" />
+          </View>
           <View style={ styles.addOrEditTaskContainer }>
             <AddOrEditTask
               addTask={ this.addTask }
@@ -333,6 +357,8 @@ export default class ToDoModel extends Component {
               toggleAddingTask={ this.toggleAddingTask }
               toggleCompletedTaskView={ this.toggleCompletedTaskView }
               viewingCompletedTask={ viewingCompletedTask }
+              addingOrEditingTask={ addingOrEditingTask }
+              buttonText="X"
             />
           </View>
         </View>
@@ -340,7 +366,7 @@ export default class ToDoModel extends Component {
     }
   }
 
-  render() {
+  render = () => {
     const displayComponent = this.pickComponent()
 
     return (
@@ -366,6 +392,6 @@ const styles = StyleSheet.create({
     height: setHeight(75),
   },
   addOrEditTaskContainer: {
-    height: setHeight(88.80),
+    height: setHeight(75),
   }
 });
