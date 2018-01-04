@@ -33,7 +33,7 @@ export default class AddOrEditTask extends Component {
     this.setState({ text });
   }
 
-  handleSubmit = () => {
+  handleTaskSubmit = () => {
     const { editing } = this.props;
 
     if (!editing) {
@@ -52,6 +52,10 @@ export default class AddOrEditTask extends Component {
     }
   }
 
+  handlePrioritySubmit = (priority) => {
+    console.log('this is the priority:::', priority);
+  }
+
   render() {
     return (
       <View style={ styles.container }>
@@ -63,12 +67,29 @@ export default class AddOrEditTask extends Component {
             style={ styles.textInput }
             value={ this.state.text }
             onChangeText={ this.handleChange }
-            onSubmitEditing={ this.handleSubmit }
+            onSubmitEditing={ this.handleTaskSubmit }
           />
         </View>
-        <View style={ styles.doneButton }>
-          <TouchableHighlight onPress={ this.handleSubmit }>
-            <View style={ styles.button }>
+        <View style={ styles.priorityButtonsContainer }>
+          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 1) }>
+            <View style={ [styles.button, styles.priorityButton] }>
+              <Text style={ styles.buttonText }> 1 </Text>
+            </View>
+          </TouchableHighlight>
+          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null) }>
+            <View style={ [styles.button, styles.priorityButton] }>
+              <Text style={ styles.buttonText }> 2 </Text>
+            </View>
+          </TouchableHighlight>
+          <TouchableHighlight onPress={ this.handlePrioritySubmit }>
+            <View style={ [styles.button, styles.priorityButton] }>
+              <Text style={ styles.buttonText }> 3 </Text>
+            </View>
+          </TouchableHighlight>
+        </View>
+        <View style={ styles.doneButtonContainer }>
+          <TouchableHighlight onPress={ this.handleTaskSubmit }>
+            <View style={ [styles.button, styles.doneButton] }>
               <Text style={ styles.buttonText }>+</Text>
             </View>
           </TouchableHighlight>
@@ -118,10 +139,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  doneButton: {
+  doneButtonContainer: {
+    marginTop: 30,
     height: 100,
     width: Dimensions.get('window').width,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  priorityButtonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  priorityButton: {
+    margin: 20,
+  },
+  doneButton: {
+    height: 90,
+    width: 90,
   }
 })
