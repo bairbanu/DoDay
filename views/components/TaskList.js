@@ -11,12 +11,15 @@ import { FlatList, RectButton } from 'react-native-gesture-handler';
 
 import StyledSwipeableRow from './StyledSwipeableRow';
 
-const Row = ({ item, toggleEditingTask }) => {
+const Row = ({ item, toggleEditingTask, viewingCompletedTask }) => {
   return (
     <RectButton
       style={ styles.rectButton }
       onPress={ toggleEditingTask.bind(this, item) } >
-        <Text numberOfLines={ 2 } style={ styles.messageText }>
+        <Text
+          numberOfLines={ 2 }
+          style={ viewingCompletedTask ? styles.messageTextComplete : styles.messageText }
+        >
           { item.task }
         </Text>
     </RectButton>
@@ -38,7 +41,11 @@ const SwipeableRow = ({
       viewingCompletedTask={ viewingCompletedTask }
       unCompleteTask={ unCompleteTask }
     >
-      <Row item={ item } toggleEditingTask={ toggleEditingTask } />
+      <Row
+        item={ item }
+        toggleEditingTask={ toggleEditingTask }
+        viewingCompletedTask= { viewingCompletedTask }
+      />
     </StyledSwipeableRow>
   );
 
@@ -112,6 +119,11 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 20,
     backgroundColor: 'transparent',
+  },
+  messageTextComplete: {
+    fontSize: 20,
+    backgroundColor: 'transparent',
+    textDecorationLine: 'line-through',
   },
   emptyContainer: {
     flex: 1,

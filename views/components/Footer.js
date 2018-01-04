@@ -8,6 +8,8 @@ const Footer = ({
   toggleCompletedTaskView,
   viewingCompletedTask,
   addingOrEditingTask,
+  toggleEditingTaskView,
+  editingTask,
   buttonText,
 }) => {
   return (
@@ -18,11 +20,15 @@ const Footer = ({
         onPress={
           viewingCompletedTask
           ? toggleCompletedTaskView
-          : toggleAddingTask
+          : (editingTask
+            ? toggleEditingTaskView
+            : toggleAddingTask)
         }
         onLongPress= {
           addingOrEditingTask
-          ? toggleAddingTask
+          ? (editingTask
+            ? toggleEditingTaskView
+            : toggleAddingTask)
           : toggleCompletedTaskView
         }
       />

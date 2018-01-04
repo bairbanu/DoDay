@@ -120,11 +120,10 @@ export default class ToDoModel extends Component {
   }
 
   prioritizeTasks = tasks => {
-    console.log('these are the tasks::', tasks);
-    const firstPriority = tasks.filter(task => task.priority === 1);
-    const secondPriority = tasks.filter(task => task.priority === 2);
-    const thirdPriority = tasks.filter(task => task.priority === 3);
-    const nullPriority = tasks.filter(task => task.priority === null);
+    const firstPriority = tasks.filter(task => task.priority === '1');
+    const secondPriority = tasks.filter(task => task.priority === '2');
+    const thirdPriority = tasks.filter(task => task.priority === '3');
+    const nullPriority = tasks.filter(task => task.priority === 'none');
 
     return [...firstPriority, ...secondPriority, ...thirdPriority, ...nullPriority];
   }
@@ -133,17 +132,27 @@ export default class ToDoModel extends Component {
   toggleAddingTask = () => {
     this.setState(prevState => {
         return {
-          addingOrEditingTask: !prevState.addingOrEditingTask
+          addingOrEditingTask: !prevState.addingOrEditingTask,
         }
       });
   }
 
-  toggleEditingTask = (task) => {
+  toggleEditingTask = task => {
     this.setState({
       taskBeingEdited: task,
       addingOrEditingTask: true,
       editingTask: true
-    })
+    });
+  }
+
+  toggleEditingTaskView = () => {
+    this.setState( prevState => {
+      return {
+        taskBeingEdited: null,
+        editingTask: !prevState.editingTask,
+        addingOrEditingTask: !prevState.addingOrEditingTask,
+      }
+    });
   }
 
   toggleCompletedTaskView = () => {
@@ -196,8 +205,10 @@ export default class ToDoModel extends Component {
       return task;
     })
 
+    const prioritizedTasks = this.prioritizeTasks(newTasks);
+
     this.setState({
-      tasks: newTasks,
+      tasks: prioritizedTasks,
       taskBeingEdited: null,
       addingOrEditingTask: false,
       editingTask: false
@@ -250,7 +261,6 @@ export default class ToDoModel extends Component {
       tasks,
       taskBeingEdited,
       viewingCompletedTask,
-      toggleCompletedTaskView,
       completedTasks,
     } = this.state;
 
@@ -334,6 +344,8 @@ export default class ToDoModel extends Component {
               toggleCompletedTaskView={ this.toggleCompletedTaskView }
               viewingCompletedTask={ viewingCompletedTask }
               addingOrEditingTask={ addingOrEditingTask }
+              editingTask= { editingTask }
+              toggleEditingTaskView= { this.toggleEditingTaskView }
               buttonText="X"
             />
           </View>

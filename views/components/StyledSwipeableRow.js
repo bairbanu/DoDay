@@ -100,7 +100,7 @@ export default class StyledSwipeableRow extends Component {
       }
   }
 
-  render() {
+  render = () => {
     const { children } = this.props;
     const viewDependentProps = this.pickProps();
 

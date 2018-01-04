@@ -7,6 +7,7 @@ import {
   ScrollView,
   Dimensions,
   TouchableHighlight,
+  Picker,
 } from 'react-native';
 
 import { setHeight } from '../../model/utils';
@@ -14,10 +15,9 @@ import { setHeight } from '../../model/utils';
 export default class AddOrEditTask extends Component {
   state = {
     text: '',
-    priority: null,
+    priority: 'none',
   }
 
-  // if editing a task, this will populate that task for user.
   componentWillMount = () => {
     const { editing } = this.props;
 
@@ -31,7 +31,7 @@ export default class AddOrEditTask extends Component {
     }
   }
 
-  handleChange = (text) => {
+  handleChange = text => {
     this.setState({ text });
   }
 
@@ -54,10 +54,6 @@ export default class AddOrEditTask extends Component {
     }
   }
 
-  handlePrioritySubmit = (priority) => {
-    this.setState({ priority });
-  }
-
   render = () => {
     return (
       <ScrollView style={ styles.container }>
@@ -70,23 +66,15 @@ export default class AddOrEditTask extends Component {
           />
         </View>
 
-        <View style={ styles.priorityButtonsContainer }>
-          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 1) }>
-            <View style={ [styles.button, styles.priorityButton] }>
-              <Text style={ styles.buttonText, styles.priorityButtonText }> 1 </Text>
-            </View>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 2) }>
-            <View style={ [styles.button, styles.priorityButton] }>
-              <Text style={ styles.buttonText, styles.priorityButtonText }> 2 </Text>
-            </View>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={ this.handlePrioritySubmit.bind(null, 3) }>
-            <View style={ [styles.button, styles.priorityButton] }>
-              <Text style={ styles.buttonText, styles.priorityButtonText }> 3 </Text>
-            </View>
-          </TouchableHighlight>
-        </View>
+        <Text style={ styles.priorityText }> Priority </Text>
+        <Picker
+          selectedValue={ this.state.priority }
+          onValueChange={ itemValue => this.setState({ priority: itemValue }) }>
+            <Picker.Item label="1" value="1" />
+            <Picker.Item label="2" value="2" />
+            <Picker.Item label="3" value="3" />
+            <Picker.Item label="None" value="none" />
+        </Picker>
 
         <View style={ styles.doneButtonContainer }>
           <TouchableHighlight onPress={ this.handleTaskSubmit }>
@@ -146,16 +134,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  priorityButtonsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  priorityButton: {
-    margin: 20,
-  },
   doneButton: {
     height: 90,
     width: 90,
+  },
+  priorityText: {
+    fontSize: 15,
+    textAlign: 'center',
   }
 })
