@@ -15,7 +15,7 @@ const Row = ({ item, toggleEditingTask, viewingCompletedTask }) => {
   return (
     <RectButton
       style={ styles.rectButton }
-      onPress={ toggleEditingTask.bind(this, item) } >
+      onPress={ !viewingCompletedTask ? toggleEditingTask.bind(this, item) : null} >
         <Text
           numberOfLines={ 2 }
           style={ viewingCompletedTask ? styles.messageTextComplete : styles.messageText }

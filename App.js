@@ -120,12 +120,12 @@ export default class ToDoModel extends Component {
   }
 
   prioritizeTasks = tasks => {
-    const firstPriority = tasks.filter(task => task.priority === '1');
-    const secondPriority = tasks.filter(task => task.priority === '2');
-    const thirdPriority = tasks.filter(task => task.priority === '3');
+    const highPriority = tasks.filter(task => task.priority === 'high');
+    const mediumPriority = tasks.filter(task => task.priority === 'medium');
+    const lowPriority = tasks.filter(task => task.priority === 'low');
     const nullPriority = tasks.filter(task => task.priority === 'none');
 
-    return [...firstPriority, ...secondPriority, ...thirdPriority, ...nullPriority];
+    return [...highPriority, ...mediumPriority, ...lowPriority, ...nullPriority];
   }
 
   /* ---------- TOGGLING ---------- */
@@ -304,12 +304,10 @@ export default class ToDoModel extends Component {
           </View>
           <View style={ styles.taskListContainer }>
             <TaskList
-              toggleEditingTask={ this.toggleEditingTask }
               tasks={ completedTasks }
               completedTasksEmpty={ completedTasksEmpty }
               viewingCompletedTask={ viewingCompletedTask }
               unCompleteTask={ this.unCompleteTask }
-              deleteTask={ this.deleteTask }
             />
           </View>
           <View>

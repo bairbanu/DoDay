@@ -69,10 +69,11 @@ export default class AddOrEditTask extends Component {
         <Text style={ styles.priorityText }> Priority </Text>
         <Picker
           selectedValue={ this.state.priority }
-          onValueChange={ itemValue => this.setState({ priority: itemValue }) }>
-            <Picker.Item label="1" value="1" />
-            <Picker.Item label="2" value="2" />
-            <Picker.Item label="3" value="3" />
+          onValueChange={ itemValue => this.setState({ priority: itemValue }) }
+        >
+            <Picker.Item label="High" value="high" />
+            <Picker.Item label="Medium" value="medium" />
+            <Picker.Item label="Low" value="low" />
             <Picker.Item label="None" value="none" />
         </Picker>
 
