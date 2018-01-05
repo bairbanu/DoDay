@@ -10,6 +10,8 @@ import {
   Picker,
 } from 'react-native';
 
+import { Button } from 'react-native-elements';
+
 import { setHeight } from '../../model/utils';
 
 export default class AddOrEditTask extends Component {
@@ -56,35 +58,43 @@ export default class AddOrEditTask extends Component {
 
   render = () => {
     return (
-      <ScrollView style={ styles.container }>
-        <View style={ styles.textInputContainer }>
-          <TextInput
-            style={ styles.textInput }
-            value={ this.state.text }
-            onChangeText={ this.handleChange }
-            onSubmitEditing={ this.handleTaskSubmit }
-          />
-        </View>
+      <View  style={ styles.container }>
+        <ScrollView>
+          <View style={ styles.textInputContainer }>
+            <TextInput
+              style={ styles.textInput }
+              value={ this.state.text }
+              onChangeText={ this.handleChange }
+              onSubmitEditing={ this.handleTaskSubmit }
+            />
+          </View>
 
-        <Text style={ styles.priorityText }> Priority </Text>
-        <Picker
-          selectedValue={ this.state.priority }
-          onValueChange={ itemValue => this.setState({ priority: itemValue }) }
-        >
-            <Picker.Item label="High" value="high" />
-            <Picker.Item label="Medium" value="medium" />
-            <Picker.Item label="Low" value="low" />
-            <Picker.Item label="None" value="none" />
-        </Picker>
+          <Text style={ styles.priorityText }> Priority </Text>
+          <Picker
+            selectedValue={ this.state.priority }
+            onValueChange={ itemValue => this.setState({ priority: itemValue }) }
+          >
+              <Picker.Item label="High" value="high" />
+              <Picker.Item label="Medium" value="medium" />
+              <Picker.Item label="Low" value="low" />
+              <Picker.Item label="None" value="none" />
+          </Picker>
+        </ScrollView>
 
         <View style={ styles.doneButtonContainer }>
-          <TouchableHighlight onPress={ this.handleTaskSubmit }>
+          <Button
+            large
+            title="+"
+            onPress={ this.handleTaskSubmit }
+            buttonStyle={ styles.doneButton }
+          />
+          {/* <TouchableHighlight onPress={ this.handleTaskSubmit }>
             <View style={ [styles.button, styles.doneButton] }>
               <Text style={ styles.buttonText }>+</Text>
             </View>
-          </TouchableHighlight>
+          </TouchableHighlight> */}
         </View>
-      </ScrollView>
+      </View>
     );
   }
 }
@@ -129,15 +139,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
   doneButtonContainer: {
-    marginTop: 30,
-    height: 100,
-    width: Dimensions.get('window').width,
+    height: setHeight(9),
     alignItems: 'center',
     justifyContent: 'center',
   },
   doneButton: {
-    height: 90,
-    width: 90,
+    backgroundColor: 'green',
+    width: Dimensions.get('window').width,
   },
   priorityText: {
     fontSize: 15,

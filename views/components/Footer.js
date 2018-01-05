@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { Button } from 'react-native-elements';
 
 const Footer = ({
@@ -17,6 +17,7 @@ const Footer = ({
       <Button
         large
         title={ buttonText }
+        buttonStyle={ styles.button }
         onPress={
           viewingCompletedTask
           ? toggleCompletedTaskView
@@ -35,5 +36,11 @@ const Footer = ({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  button: {
+    width: Dimensions.get('window').width,
+  }
+})
 
 export default Footer;

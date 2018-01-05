@@ -7,6 +7,7 @@ import {
   View,
   AppState,
   AsyncStorage,
+  Dimensions,
 } from 'react-native';
 
 import {
@@ -18,7 +19,7 @@ import {
 
 import { setHeight } from './model/utils';
 
-export default class ToDoModel extends Component {
+export default class StateStore extends Component {
   state = {
     tasks: [],
     completedTasks: [],
@@ -28,6 +29,7 @@ export default class ToDoModel extends Component {
     viewingCompletedTask: false,
     counterForTaskID: 1,
     refreshDate: null,
+    justRefreshed: false,
   }
 
   /* ---------- HOOK ---------- */
@@ -49,9 +51,12 @@ export default class ToDoModel extends Component {
   /* ---------- HANDLER ---------- */
   handleAppStateChange = (nextAppState) => {
     if (nextAppState === 'active') {
-      const refresh = this.shouldListRefresh();
-      if (!refresh)
+      const shouldRefresh = this.shouldListRefresh(5);
+      if (!shouldRefresh)
         this.getState();
+      else if (shouldRefresh) {
+        this.refreshTaskList();
+      }
     }
 
     else if (nextAppState === 'inactive')
@@ -63,18 +68,16 @@ export default class ToDoModel extends Component {
   handleFirstTimeUser = () => {
     if (this.state.refreshDate === null)
       this.setState({
-        refreshDate: moment().add(1, 'days').format('DD')
+        refreshDate: moment().add(1, 'days').format('DD'),
+        justRefreshed: true,
       });
   }
 
   /* ---------- UTIL ---------- */
-  shouldListRefresh = () => {
-    const refreshTimeThreshold = 5; // in military time, so 5 AM
+  shouldListRefresh = (militaryTime) => {
+    const refreshTimeThreshold = militaryTime;
 
     const shouldTasksRefresh = this.checkTasksRefresh(refreshTimeThreshold);
-    if (shouldTasksRefresh) {
-      this.refreshTaskList();
-    }
     return shouldTasksRefresh;
   }
 
@@ -188,7 +191,8 @@ export default class ToDoModel extends Component {
         tasks: prioritizedTasks,
         addingOrEditingTask: false,
         editingTask: false,
-        counterForTaskID: newCounterID
+        counterForTaskID: newCounterID,
+        justRefreshed: false,
        }
     })
   }
@@ -249,7 +253,8 @@ export default class ToDoModel extends Component {
   refreshTaskList = () => {
     this.setState({
       tasks: [],
-      refreshDate: moment().add(1, 'days').format('DD')
+      refreshDate: moment().add(1, 'days').format('DD'),
+      justRefreshed: true,
     });
   }
 
@@ -262,6 +267,7 @@ export default class ToDoModel extends Component {
       taskBeingEdited,
       viewingCompletedTask,
       completedTasks,
+      justRefreshed,
     } = this.state;
 
     let tasksEmpty = false;
@@ -282,6 +288,7 @@ export default class ToDoModel extends Component {
               tasksEmpty = { tasksEmpty }
               completeTask={ this.completeTask }
               deleteTask={ this.deleteTask }
+              justRefreshed={ justRefreshed }
             />
           </View>
           <View>
@@ -308,6 +315,7 @@ export default class ToDoModel extends Component {
               completedTasksEmpty={ completedTasksEmpty }
               viewingCompletedTask={ viewingCompletedTask }
               unCompleteTask={ this.unCompleteTask }
+              justRefreshed={ justRefreshed }
             />
           </View>
           <View>
@@ -395,8 +403,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   footer: {
-    height: setHeight(18),
+    height: setHeight(12),
     bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   taskListContainer: {
     height: setHeight(75),

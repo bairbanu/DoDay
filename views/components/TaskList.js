@@ -50,7 +50,7 @@ const SwipeableRow = ({
   );
 
 export default class TaskList extends Component {
-  render() {
+  render = () => {
     const {
       tasks,
       tasksEmpty,
@@ -62,6 +62,7 @@ export default class TaskList extends Component {
       completeTask,
       unCompleteTask,
       deleteTask,
+      justRefreshed,
     } = this.props;
 
     // console.log('empty prop::', tasksEmpty, completedTasksEmpty);
@@ -70,13 +71,13 @@ export default class TaskList extends Component {
     if (tasksEmpty)
       return (
         <View style={ styles.emptyContainer }>
-          <Text style={ styles.emptyText }> No current tasks. </Text>
+          <Text style={ styles.emptyText }> { justRefreshed ? "New day, new beginning!" : "No more tasks for today! Yet." } </Text>
         </View>
       );
     if (completedTasksEmpty)
       return (
         <View style={ styles.emptyContainer }>
-          <Text style={ styles.emptyText }> No completed tasks. </Text>
+          <Text style={ styles.emptyText }> { justRefreshed ? "New day! No completed tasks yet." : "No tasks yet completed." } </Text>
         </View>
       );
 
