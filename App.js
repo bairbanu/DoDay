@@ -17,7 +17,8 @@ import {
   Footer,
 } from './views';
 
-import { setHeight } from './model/utils';
+import { setHeight, prioritizeTasks, checkTasksRefresh } from './model/utils';
+import { persistState } from './model/database';
 
 export default class StateStore extends Component {
   state = {
@@ -32,39 +33,30 @@ export default class StateStore extends Component {
     justRefreshed: false,
   }
 
-  /* ---------- HOOK ---------- */
   componentWillMount() {
     this.handleFirstTimeUser();
-    this.shouldListRefresh();
+    this.refreshTasksOrGetState();
   }
 
-  /* ---------- HOOK ---------- */
   componentDidMount() {
+    // console.log('this:::', this);
     AppState.addEventListener('change', this.handleAppStateChange);
   }
 
-  /* ---------- HOOK ---------- */
   componentWillUnmount() {
     AppState.removeEventListener('change', this.handleAppStateChange);
   }
 
-  /* ---------- HANDLER ---------- */
   handleAppStateChange = (nextAppState) => {
     if (nextAppState === 'active') {
-      const shouldRefresh = this.shouldListRefresh(5);
-      if (!shouldRefresh)
-        this.getState();
-      else if (shouldRefresh) {
-        this.refreshTaskList();
-      }
+      this.refreshTasksOrGetState()
     }
 
     else if (nextAppState === 'inactive')
     // consider persisting state each time the user adds, edits, completes, or deletes a task
-      this.persistState();
+      persistState(this.state);
   }
 
-  /* ---------- HANDLER ---------- */
   handleFirstTimeUser = () => {
     if (this.state.refreshDate === null)
       this.setState({
@@ -73,44 +65,15 @@ export default class StateStore extends Component {
       });
   }
 
-  /* ---------- UTIL ---------- */
-  shouldListRefresh = (militaryTime) => {
-    const refreshTimeThreshold = militaryTime;
-
-    const shouldTasksRefresh = this.checkTasksRefresh(refreshTimeThreshold);
-    return shouldTasksRefresh;
-  }
-
-  /* ---------- UTIL, needs refreshDate from state ---------- */
-  checkTasksRefresh = timeThreshold => {
-    // currently not consider thresholds to be as granular as minutes
-    const currentTime = Number(moment().format('HH'));
-    const currentDate = Number(moment().format('DD'));
-    const { refreshDate } = this.state;
-
-    // need to handle the monthly edge case. What happens
-    // when months change. Then, what happens when year changes.
-    if (currentDate < Number(refreshDate))
-      return false;
-    else if (currentDate >= Number(refreshDate)) {
-      if (currentTime < timeThreshold)
-        return false;
-      else if (currentTime > timeThreshold)
-        return true;
+  refreshTasksOrGetState = () => {
+    const shouldRefresh = checkTasksRefresh(5, this.state.refreshDate);
+    if (!shouldRefresh)
+      this.getState();
+    else if (shouldRefresh) {
+      this.refreshTaskList();
     }
   }
 
-  /* ---------- UTIL, needs the state ---------- */
-  persistState = () => {
-    const stateJSON = JSON.stringify(this.state);
-
-    AsyncStorage.setItem('@focus_monkey', stateJSON)
-      .catch(error => {
-        console.log('Async set error:', error);
-      })
-  }
-
-  /* ---------- UTIL, can abstract away AsyncStorage logic ---------- */
   getState = () => {
     AsyncStorage.getItem('@focus_monkey')
       .then(stateJSON => {
@@ -122,16 +85,6 @@ export default class StateStore extends Component {
       })
   }
 
-  prioritizeTasks = tasks => {
-    const highPriority = tasks.filter(task => task.priority === 'high');
-    const mediumPriority = tasks.filter(task => task.priority === 'medium');
-    const lowPriority = tasks.filter(task => task.priority === 'low');
-    const nullPriority = tasks.filter(task => task.priority === 'none');
-
-    return [...highPriority, ...mediumPriority, ...lowPriority, ...nullPriority];
-  }
-
-  /* ---------- TOGGLING ---------- */
   toggleAddingTask = () => {
     this.setState(prevState => {
         return {
@@ -166,9 +119,7 @@ export default class StateStore extends Component {
     });
   }
 
-  /* ---------- MANIPULATING TASKS ---------- */
   addTask = item => {
-    // validating not adding empty tasks
     if (item.text === '') {
       this.setState({
         addingOrEditingTask: false,
@@ -185,7 +136,7 @@ export default class StateStore extends Component {
       }
       const newCounterID = prevState.counterForTaskID + 1;
 
-      const prioritizedTasks = this.prioritizeTasks([...prevState.tasks, newTask]);
+      const prioritizedTasks = prioritizeTasks([...prevState.tasks, newTask]);
 
       return {
         tasks: prioritizedTasks,
@@ -209,7 +160,7 @@ export default class StateStore extends Component {
       return task;
     })
 
-    const prioritizedTasks = this.prioritizeTasks(newTasks);
+    const prioritizedTasks = prioritizeTasks(newTasks);
 
     this.setState({
       tasks: prioritizedTasks,
@@ -258,7 +209,6 @@ export default class StateStore extends Component {
     });
   }
 
-  /* ---------- RENDER LOGIC ---------- */
   pickComponent = () => {
     const {
       addingOrEditingTask,
