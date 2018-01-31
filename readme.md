@@ -1,4 +1,7 @@
-Minimalist to-do application that takes out the past and the future and helps users focus on today. 
+Minimalist to-do application that takes out the past and the future and helps users focus on today.
+
+#### Tech Stack:
+- React Native using the Expo XDE.
 
 ## Application Features:
 
